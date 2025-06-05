@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Don De Dieu</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Admin Panel - Don De Dieu Wines</h1>
+  </header>
+
+  <main style="max-width: 600px; margin: auto; padding: 1rem;">
+    <section id="loginSection">
+      <input type="password" id="adminPass" placeholder="Enter admin password" />
+      <button id="loginBtn">Login</button>
+    </section>
+
+    <section id="adminForm" style="display:none;">
+      <h2>Add a New Wine</h2>
+      <form id="wineForm" enctype="multipart/form-data">
+        <input type="text" id="wineName" placeholder="Wine Name" required />
+        <input type="text" id="wineType" placeholder="Type (red/white)" required />
+        <input type="number" id="wineAlcohol" placeholder="Alcohol %" step="0.1" required />
+
+        <label for="wineImageFile">Wine Image:</label>
+        <input type="file" id="wineImageFile" accept="image/*" required />
+
+        <input type="text" id="winePage" placeholder="Wine page URL (e.g. wine3.html)" required />
+        <button type="submit">Add Wine</button>
+      </form>
+      <div id="message" style="margin-top: 15px; color: green;"></div>
+    </section>
+  </main>
+   <script>
+  const loginSection = document.getElementById('loginSection');
+  const adminForm = document.getElementById('adminForm');
+  const loginBtn = document.getElementById('loginBtn');
+  const adminPassInput = document.getElementById('adminPass');
+  const messageDiv = document.getElementById('message');
+
+  loginBtn.addEventListener('click', () => {
+    if (adminPassInput.value === 'wineadmin2025') {
+      loginSection.style.display = 'none';
+      adminForm.style.display = 'block';
+    } else {
+      alert('Incorrect password.');
+    }
+  });
+
+  const wineForm = document.getElementById('wineForm');
+
+  wineForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('wineName').value.trim();
+    const type = document.getElementById('wineType').value.trim().toLowerCase();
+    const alcohol = parseFloat(document.getElementById('wineAlcohol').value);
+    const page = document.getElementById('winePage').value.trim();
+    const imageFile = document.getElementById('wineImageFile').files[0];
+
+    if (!name || !type || isNaN(alcohol) || !page || !imageFile) {
+      alert('Please fill all fields correctly.');
+      return;
+    }
+
+    if (type !== 'red' && type !== 'white') {
+      alert('Type must be "red" or "white".');
+      return;
+    }
+
+    try {
+      // Upload image
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      const uploadRes = await fetch('http://localhost:3000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error('Image upload failed');
+
+      const uploadData = await uploadRes.json();
+
+      // Add wine
+      const wine = {
+        name,
+        type,
+        alcohol,
+        image: uploadData.filename,
+        page,
+      };
+
+      const addWineRes = await fetch('http://localhost:3000/api/wines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(wine),
+      });
+
+      if (!addWineRes.ok) throw new Error('Adding wine failed');
+
+      messageDiv.textContent = 'Wine added successfully! Refresh main page to see it.';
+      wineForm.reset();
+
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  });
+</script>

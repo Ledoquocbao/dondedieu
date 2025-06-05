@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Don De Dieu Wines</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Don De Dieu Wines</h1>
+  </header>
+
+  <main>
+    <section class="filters">
+      <input type="text" id="searchInput" placeholder="Search wines..." />
+      <select id="filterType">
+        <option value="all">All Types</option>
+        <option value="red">Red</option>
+        <option value="white">White</option>
+      </select>
+      <select id="sortBy">
+        <option value="name">Sort by Name</option>
+        <option value="alcohol">Sort by Alcohol %</option>
+      </select>
+      <button id="resetFilters">Reset Filters</button>
+    </section>
+
+    <section id="wineGrid" class="wine-grid"></section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
